@@ -4,6 +4,7 @@ const usuariosRouter = require('./routes/usuarios');
 const productosRouter = require('./routes/productos');
 const proveedoresRouter = require('./routes/proveedor');
 const vendedoresRouter = require('./routes/vendedores');
+const authRouter = require('./routes/auth');
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,7 @@ app.use('/api/usuarios', usuariosRouter);
 app.use('/api/productos', productosRouter);
 app.use('/api/proveedores', proveedoresRouter);
 app.use('/api/vendedores', vendedoresRouter);
+app.use('/api/auth', authRouter);
 
 const PORT = process.env.LISENER_PORT || 3000;
 app.listen(PORT, () => {
