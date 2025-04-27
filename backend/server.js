@@ -16,7 +16,7 @@ app.use('/api/proveedores', proveedoresRouter);
 app.use('/api/vendedores', vendedoresRouter);
 app.use('/api/auth', authRouter);
 
-const PORT = process.env.LISENER_PORT || 3000;
+const PORT = process.env.LISENER_PORT || 3001;
 app.listen(PORT, () => {
     console.log(`El servidor esta corriendo en http://localhost:${PORT}/api`);
 });
