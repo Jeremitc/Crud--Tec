@@ -4,24 +4,39 @@ import { useAuth } from '../auth/auth_context';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
-export default function Register() {
-  const [email, setEmail] = useState('');
+const Register = () => {
+  const [nombreUsuario, setNombreUsuario] = useState('');
+  const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
     try {
-      const response = await axios.post('http://localhost:3001/api/register', {
-        email,
+      const response = await axios.post('http://localhost:3001/api/usuarios', {
+        nombre_usuario: nombreUsuario,
+        correo,
         password,
       });
-      login(response.data.token); // Assuming API returns a token
-      navigate('/home');
+
+      if (response.data.ingresa) {
+        login(response.data.usuario);
+        navigate('/home');
+      } else {
+        throw new Error(response.data.error || 'Error al registrarse');
+      }
     } catch (err) {
-      setError('Registration failed. Try again.');
+      console.error('Registration failed:', err);
+      const backendError = err.response?.data?.error || 'Error al registrarse';
+      setError(backendError);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,7 +49,7 @@ export default function Register() {
         className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-sm md:max-w-md"
       >
         <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-8">
-          Register 
+          Register
         </h2>
         {error && (
           <motion.p
@@ -48,20 +63,40 @@ export default function Register() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="nombreUsuario"
               className="block text-sm font-medium text-gray-700"
             >
-              Email Address or Username
+              Username
             </label>
             <motion.input
               whileFocus={{ scale: 1.02 }}
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="nombreUsuario"
+              type="text"
+              value={nombreUsuario}
+              onChange={(e) => setNombreUsuario(e.target.value)}
               required
-              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300"
-              placeholder="your@email.com or username"
+              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300 text-gray-900 placeholder-gray-500"
+              placeholder="Your username"
+              disabled={isLoading}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="correo"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <motion.input
+              whileFocus={{ scale: 1.02 }}
+              id="correo"
+              type="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              required
+              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300 text-gray-900 placeholder-gray-500"
+              placeholder="your@email.com"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -78,17 +113,21 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300"
+              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300 text-gray-900 placeholder-gray-500"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: isLoading ? 1 : 1.05 }}
+            whileTap={{ scale: isLoading ? 1 : 0.95 }}
             type="submit"
-            className="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition duration-300"
+            className={`w-full bg-gray-900 text-white py-3 rounded-xl font-semibold transition duration-300 ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'
+            }`}
+            disabled={isLoading}
           >
-            Sign Up
+            {isLoading ? 'Signing Up...' : 'Sign Up'}
           </motion.button>
         </form>
         <p className="text-center text-sm text-gray-600 mt-8">
@@ -100,4 +139,6 @@ export default function Register() {
       </motion.div>
     </div>
   );
-}
+};
+
+export default Register;

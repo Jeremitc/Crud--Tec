@@ -5,23 +5,41 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    console.log('Submitting:', { usuario: identifier, password });
+
     try {
-      const response = await axios.post('http://localhost:3001/api/login', {
-        email,
+      const response = await axios.post('http://localhost:3001/api/auth', {
+        usuario: identifier, // Match backend field name
         password,
       });
-      login(response.data.token); // Assuming API returns a token
-      navigate('/home');
+
+      console.log('API Response:', response.data);
+
+      if (response.data.ingresa) {
+        console.log('Login successful, calling auth context login...');
+        login(response.data.usuario); // Pass user object directly
+        navigate('/home');
+      } else {
+        throw new Error(response.data.error || 'Error al iniciar sesión');
+      }
     } catch (err) {
-      setError('Invalid email or password');
+      console.error('Login failed:', err);
+      const backendError = err.response?.data?.error || 'Usuario, correo o contraseña incorrectos';
+      setError(backendError);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,21 +66,31 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="identifier"
               className="block text-sm font-medium text-gray-700"
             >
-              Email Address
+              Username or Email
             </label>
             <motion.input
               whileFocus={{ scale: 1.02 }}
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="identifier"
+              type="text"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
-              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300"
-              placeholder="your@email.com"
+              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300 text-gray-900 placeholder-gray-500"
+              placeholder="your_username or your@email.com"
+              disabled={isLoading}
             />
+            <style jsx>{`
+              input:-webkit-autofill,
+              input:-webkit-autofill:hover,
+              input:-webkit-autofill:focus,
+              input:-webkit-autofill:active {
+                -webkit-text-fill-color: #111827 !important;
+                transition: background-color 5000s ease-in-out 0s;
+              }
+            `}</style>
           </div>
           <div>
             <label
@@ -78,19 +106,22 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300"
+              className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300 text-gray-900 placeholder-gray-500"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: isLoading ? 1 : 1.05 }}
+            whileTap={{ scale: isLoading ? 1 : 0.95 }}
             type="submit"
-            className="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition duration-300"
+            className={`w-full bg-gray-900 text-white py-3 rounded-xl font-semibold transition duration-300 ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'
+            }`}
+            disabled={isLoading}
           >
-            Sign In
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </motion.button>
-        
         </form>
         <p className="text-center text-sm text-gray-600 mt-8">
           Don't have an account?{' '}
