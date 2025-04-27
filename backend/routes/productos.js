@@ -5,32 +5,34 @@ const { body, validationResult } = require('express-validator');
 
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM productos');
+        const [rows] = await db.query('SELECT * FROM producto');
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener los usuarios' });
+        res.status(500).json({ error: 'Error al obtener los productos' });
     }
 });
 
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        const [rows] = await db.query('SELECT * FROM productos WHERE id_producto = ?', [id]);
+        const [rows] = await db.query('SELECT * FROM producto WHERE id_producto = ?', [id]);
         if (rows.length === 0) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
+            return res.status(404).json({ error: 'Producto no encontrado' });
         }
         res.json(rows[0]);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener el usuario' });
+        res.status(500).json({ error: 'Error al obtener el producto' });
     }
 });
 
 router.post('/',
     [
         body('nombre_producto').notEmpty().withMessage('El nombre es obligatorio'),
+        body('precio').notEmpty().withMessage('El precio es obligatorio'),
         body('precio').isFloat().withMessage('El precio debe ser un número'),
+        body('stock').notEmpty().withMessage('El stock es obligatorio'),
         body('stock').isInt().withMessage('El stock debe ser un número entero'),
     ],
     async (req, res) => {
@@ -42,13 +44,13 @@ router.post('/',
         const { nombre_producto, precio, stock } = req.body;
         try {
             const [result] = await db.query(
-                'INSERT INTO productos (nombre_producto, precio, stock) VALUES (?, ?, ?)',
+                'INSERT INTO producto (nombre_producto, precio, stock) VALUES (?, ?, ?)',
                 [nombre_producto, precio, stock]
             );
             res.status(201).json({ id: result.insertId, nombre_producto, precio, stock });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Error al crear el usuario' });
+            res.status(500).json({ error: 'Error al crear el producto' });
         }
     }
 );
@@ -77,16 +79,16 @@ router.patch('/:id',
         
         try {
             const [result] = await db.query(
-                `UPDATE productos SET ${clausuala} WHERE id_producto = ?`,
+                `UPDATE producto SET ${clausuala} WHERE id_producto = ?`,
                 [...valores, id]
             );
             if (result.affectedRows === 0) {
-                return res.status(404).json({ error: 'Usuario no encontrado' });
+                return res.status(404).json({ error: 'Producto no encontrado' });
             }
             res.json({ id, ...campos });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Error al actualizar el usuario' });
+            res.status(500).json({ error: 'Error al actualizar el producto' });
         }
     }
 );
@@ -94,14 +96,14 @@ router.patch('/:id',
 router.delete('/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        const [result] = await db.query('DELETE FROM productos WHERE id_producto = ?', [id]);
+        const [result] = await db.query('DELETE FROM producto WHERE id_producto = ?', [id]);
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
+            return res.status(404).json({ error: 'Producto no encontrado' });
         }
-        res.json({ message: 'Usuario eliminado' });
+        res.json({ message: 'Producto eliminado' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al eliminar el usuario' });
+        res.status(500).json({ error: 'Error al eliminar el producto' });
     }
 });
 

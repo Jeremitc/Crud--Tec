@@ -5,7 +5,7 @@ const { body, validationResult } = require('express-validator');
 
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM usuarios');
+        const [rows] = await db.query('SELECT * FROM usuario');
         res.json(rows);
     } catch (error) {
         console.error(error);
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        const [rows] = await db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [id]);
+        const [rows] = await db.query('SELECT * FROM usuario WHERE id_usuario = ?', [id]);
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
@@ -43,7 +43,7 @@ router.post('/',
         const { nombre_usuario, password, correo } = req.body;
         try {
             const [result] = await db.query(
-                'INSERT INTO usuarios (nombre_usuario, password, correo) VALUES (?, ?, ?)',
+                'INSERT INTO usuario (nombre_usuario, password, correo) VALUES (?, ?, ?)',
                 [nombre_usuario, password, correo]
             );
             res.status(201).json({ id: result.insertId, nombre_usuario, password, correo });
@@ -77,7 +77,7 @@ router.patch('/:id',
         const valores = claves.map(clave => campos[clave]);
         try {
             const [result] = await db.query(
-                `UPDATE usuarios SET ${clausula} WHERE id_usuario = ?`,
+                `UPDATE usuario SET ${clausula} WHERE id_usuario = ?`,
                 [...valores, id]
             );
             if (result.affectedRows === 0) {
@@ -94,7 +94,7 @@ router.patch('/:id',
 router.delete('/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        const [result] = await db.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
+        const [result] = await db.query('DELETE FROM usuario WHERE id_usuario = ?', [id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
