@@ -79,7 +79,7 @@ const Login = () => {
               onChange={(e) => setIdentifier(e.target.value)}
               required
               className="mt-2 w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 transition duration-300 text-gray-900 placeholder-gray-500"
-              placeholder="your_username or your@email.com"
+              placeholder="your username or your@email.com"
               disabled={isLoading}
             />
             <style jsx>{`

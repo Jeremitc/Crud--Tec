@@ -2,6 +2,7 @@ import React from 'react';
 import './Styles/globals.css';
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/protected/ProtectedRoute';
+import DashboardLayout from './components/common/DashboardLayout';
 //import de paginas
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -19,14 +20,17 @@ function App() {
       {/* Rutas Publicas */}
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
       {/* Rutas Privadas */}
       <Route element={<ProtectedRoute />}>
+      <Route element={<DashboardLayout />}>
         <Route path="/home" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/provider" element={<Provider />} />
         <Route path="/seller" element={<Seller />} />
-        <Route path="*" element={<NotFound />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
+      </Route>
     </Routes>
   );
 }
