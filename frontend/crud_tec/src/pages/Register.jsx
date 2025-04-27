@@ -19,7 +19,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3001/api/usuarios', {
+      const response = await axios.post('http://localhost:3001/api/auth/register', {
         nombre_usuario: nombreUsuario,
         correo,
         password,
